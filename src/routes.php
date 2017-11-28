@@ -17,7 +17,7 @@ $app->get('/categories', function (Request $request, Response $response) {
 		$categories = $sth->fetchAll();
 		$toJSON = array();
 		foreach ($categories as $category) {
-			array_push($toJSON, array('id'=>$category['id'],'name'=>utf8_encode($category['name'])));
+			array_push($toJSON, array('id'=>$category['id'],'name'=>utf8_encode($category['name']), 'color'=>$category['color']));
 		}
 		
         return $this->response->withJson($toJSON);
@@ -110,7 +110,7 @@ $app->get('/user-posts/{uid}', function (Request $request, Response $response) {
 
 $app->post('/post', function (Request $request, Response $response) {
 		$post = json_decode($request->getBody());
-		$sql = "INSERT INTO posts (title, subject, subjectValue, uid, content) VALUES(:title, :subject, :subjectValue, :uid, :content)";
+		$sql = "INSERT INTO posts (title, subject, subjectValue, uid, content, color) VALUES(:title, :subject, :subjectValue, :uid, :content, :color)";
 		try {
 			$db = getConnection();
 			$stmt = $db->prepare($sql);
@@ -119,6 +119,7 @@ $app->post('/post', function (Request $request, Response $response) {
 			$stmt->bindParam("subjectValue", $post->subjectValue);
 			$stmt->bindParam("uid", $post->uid);
 			$stmt->bindParam("content", $post->content);
+			$stmt->bindParam("color", $post->color);
 			$stmt->execute();
 			
 			$db = null;
@@ -131,7 +132,7 @@ $app->post('/post', function (Request $request, Response $response) {
 $app->post('/update-post/{id}', function (Request $request, Response $response) {
 	$post = json_decode($request->getBody());
 	$postId = $request->getAttribute('id');
-	$sql = "UPDATE posts set title = :title, subject = :subject, subjectValue = :subjectValue, uid = :uid, content = :content WHERE id=$postId";
+	$sql = "UPDATE posts set title = :title, subject = :subject, subjectValue = :subjectValue, uid = :uid, content = :content, color = :color WHERE id=$postId";
 	try {
 		$db = getConnection();
 		$stmt = $db->prepare($sql);
@@ -140,6 +141,7 @@ $app->post('/update-post/{id}', function (Request $request, Response $response) 
 		$stmt->bindParam("subjectValue", $post->subjectValue);
 		$stmt->bindParam("uid", $post->uid);
 		$stmt->bindParam("content", $post->content);
+		$stmt->bindParam("color", $post->color);
 		$stmt->execute();
 		
 		$db = null;
