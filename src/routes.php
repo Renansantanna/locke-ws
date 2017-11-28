@@ -30,6 +30,30 @@ $app->get('/categories', function (Request $request, Response $response) {
     return $response;
 });
 
+$app->get('/query/{category}', function (Request $request, Response $response) {
+	$cat = $request->getAttribute('category');
+	if ($cat == -1) {
+		$sql = "SELECT * FROM posts";
+	} else {
+	$sql = "SELECT * FROM posts WHERE subject=:cat";
+	}
+	$return = "null";
+	try {
+		$db = getConnection();
+		$sth = $db->prepare($sql);
+		$sth->bindParam("cat", $cat);
+	   $sth->execute();
+	   $post = $sth->fetchAll();
+	   return $this->response->withJson($post);
+	} catch(PDOException $e) {
+		$return = '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+
+$response->getBody()->write($return);
+
+return $response;
+});
+
 $app->get('/post/all', function (Request $request, Response $response) {
 		$sql = "SELECT * FROM posts ORDER BY subjectValue ASC";
 		$return = "null";
