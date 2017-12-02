@@ -53,6 +53,30 @@ $response->getBody()->write($return);
 
 return $response;
 });
+$app->get('/query/{category}/{title}', function (Request $request, Response $response) {
+	$cat = $request->getAttribute('category');
+$title = $request->getAttribute('title');
+	if ($cat == 0) {
+		$sql = "SELECT * FROM posts where title like '%$title%'";
+	} else {
+	$sql = "SELECT * FROM posts WHERE subject=:cat && title like '%$title%'";
+	}
+	$return = "null";
+	try {
+		$db = getConnection();
+		$sth = $db->prepare($sql);
+		$sth->bindParam("cat", $cat);
+	   $sth->execute();
+	   $post = $sth->fetchAll();
+	   return $this->response->withJson($post);
+	} catch(PDOException $e) {
+		$return = '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+
+$response->getBody()->write($return);
+
+return $response;
+});
 
 $app->get('/post/all', function (Request $request, Response $response) {
 		$sql = "SELECT * FROM posts ORDER BY subjectValue ASC";
@@ -175,7 +199,7 @@ $app->post('/update-post/{id}', function (Request $request, Response $response) 
 
 });
 
-$app->options('/{routes:.+}', function ($request, $response, $args) {
+$app->any('/{routes:.+}', function ($request, $response, $args) {
     return $response;
 });
 
