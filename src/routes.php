@@ -32,7 +32,7 @@ $app->get('/categories', function (Request $request, Response $response) {
 
 $app->get('/query/{category}', function (Request $request, Response $response) {
 	$cat = $request->getAttribute('category');
-	if ($cat == -1) {
+	if ($cat == 0) {
 		$sql = "SELECT * FROM posts";
 	} else {
 	$sql = "SELECT * FROM posts WHERE subject=:cat";
